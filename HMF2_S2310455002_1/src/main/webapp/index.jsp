@@ -45,13 +45,13 @@
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        response.setContentType("text/html");
-        PrintWriter printWriter = response.getWriter();
-        printWriter.println("instanceParam: " + instanceParameter + "<br/>" +
-                "localParam: " + localParameter);
     %>
 
+    <div>
+        <strong>Instance Parameter: </strong> <%= instanceParameter %>
+        <br>
+        Local Parameter: <%=localParameter%>
+    </div>
 <% } %>
 </body>
 </html>
