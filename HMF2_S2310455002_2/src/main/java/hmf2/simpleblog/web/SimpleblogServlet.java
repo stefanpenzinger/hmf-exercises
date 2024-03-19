@@ -2,17 +2,19 @@ package hmf2.simpleblog.web;
 
 import hmf2.simpleblog.business.BlogEntry;
 import hmf2.simpleblog.dao.BlogEntryDAO;
-import hmf2.simpleblog.dao.MemoryBlogEntryDAOImpl;
-import hmf2.simpleblog.dao.MySqlBlogEntryDAOImpl;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Controller Servlet.*
@@ -45,7 +47,7 @@ public class SimpleblogServlet extends HttpServlet {
         //blogEntryDAO = MySqlBlogEntryDAOImpl.getInstance();
 
         WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
-        blogEntryDAO = (BlogEntryDAO)context.getBean("blogEntryDAO");
+        blogEntryDAO = (BlogEntryDAO) context.getBean("blogEntryDAO");
     }
 
     @Override
@@ -93,69 +95,105 @@ public class SimpleblogServlet extends HttpServlet {
             cmd = "menu";
         }
 
-        if (cmd.equals("add")) {
-            SimpleToken.set(request);
-            forward(request, response, "addBlogEntry.jsp");
-        }
-
-        else if (cmd.equals("do-add")) {
-            if (SimpleToken.isValid(request)) {
-                SimpleToken.remove(request);
-                BlogEntry logEntry = new BlogEntry();
-                logEntry.setContents(request.getParameter("contents"));
-                blogEntryDAO.addBlogEntry(logEntry);
-            }
-
-            showAdminMenu(request, response);
-        }
-
-        else if (cmd.equals("delete")) {
-
-            int id = -1;
-            boolean error = false;
-            try {
-                id = Integer.parseInt(request.getParameter("entryId"));
-                request.setAttribute("blogEntry", blogEntryDAO.getBlogEntry(id));
+        switch (cmd) {
+            case "add":
                 SimpleToken.set(request);
-            } catch (NumberFormatException e) {
-                log.error("Non numeric id");
-                error = true;
-            } catch (RuntimeException e) {
-                log.error("DAO Runtime Exception: " + e);
-                error = true;
-            } finally {
-                if (error) {
-                    showAdminMenu(request, response);
-                } else {
-                    forward(request, response, "deleteBlogEntry.jsp");
-                }
-            }
-        }
-
-        else if (cmd.equals("do-delete")) {
-
-            int id = -1;
-            try {
+                forward(request, response, "addBlogEntry.jsp");
+                break;
+            case "do-add":
                 if (SimpleToken.isValid(request)) {
                     SimpleToken.remove(request);
+                    BlogEntry logEntry = new BlogEntry();
+                    logEntry.setContents(request.getParameter("contents"));
+                    blogEntryDAO.addBlogEntry(logEntry);
+                }
+
+                showAdminMenu(request, response);
+                break;
+            case "update": {
+
+                int id = -1;
+                boolean error = false;
+                try {
                     id = Integer.parseInt(request.getParameter("entryId"));
-                    BlogEntry blogEntry = blogEntryDAO.getBlogEntry(id);
-                    if (blogEntry != null) {
-                       blogEntryDAO.removeBlogEntry(blogEntry);
+                    request.setAttribute("blogEntry", blogEntryDAO.getBlogEntry(id));
+                    SimpleToken.set(request);
+                } catch (NumberFormatException e) {
+                    log.error("Non numeric id");
+                    error = true;
+                } catch (RuntimeException e) {
+                    log.error("DAO Runtime Exception: " + e);
+                    error = true;
+                } finally {
+                    if (error) {
+                        showAdminMenu(request, response);
+                    } else {
+                        forward(request, response, "updateBlogEntry.jsp");
                     }
                 }
-            } catch (NumberFormatException e) {
-                log.error("Non numeric id");
-            } catch (RuntimeException e) {
-                log.error("DAO Runtime Exception: " + e);
-            } finally {
-                showAdminMenu(request, response);
+                break;
             }
-        }
+            case "do-update":
+                if (SimpleToken.isValid(request)) {
+                    SimpleToken.remove(request);
 
-        else { // includes cmd "menu"
+                    var blogEntryToUpdate = blogEntryDAO.getBlogEntry(Integer.parseInt(request.getParameter("id")));
+                    blogEntryToUpdate.setContents(request.getParameter("contents"));
+                    blogEntryToUpdate.setTimestamp(new Date());
 
-            showAdminMenu(request, response);
+                    blogEntryDAO.updateBlogEntry(blogEntryToUpdate);
+                }
+
+                showAdminMenu(request, response);
+                break;
+            case "delete": {
+
+                int id = -1;
+                boolean error = false;
+                try {
+                    id = Integer.parseInt(request.getParameter("entryId"));
+                    request.setAttribute("blogEntry", blogEntryDAO.getBlogEntry(id));
+                    SimpleToken.set(request);
+                } catch (NumberFormatException e) {
+                    log.error("Non numeric id");
+                    error = true;
+                } catch (RuntimeException e) {
+                    log.error("DAO Runtime Exception: " + e);
+                    error = true;
+                } finally {
+                    if (error) {
+                        showAdminMenu(request, response);
+                    } else {
+                        forward(request, response, "deleteBlogEntry.jsp");
+                    }
+                }
+                break;
+            }
+            case "do-delete": {
+
+                int id = -1;
+                try {
+                    if (SimpleToken.isValid(request)) {
+                        SimpleToken.remove(request);
+                        id = Integer.parseInt(request.getParameter("entryId"));
+                        BlogEntry blogEntry = blogEntryDAO.getBlogEntry(id);
+                        if (blogEntry != null) {
+                            blogEntryDAO.removeBlogEntry(blogEntry);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    log.error("Non numeric id");
+                } catch (RuntimeException e) {
+                    log.error("DAO Runtime Exception: " + e);
+                } finally {
+                    showAdminMenu(request, response);
+                }
+                break;
+            }
+            default:  // includes cmd "menu"
+
+                showAdminMenu(request, response);
+                break;
         }
 
     }

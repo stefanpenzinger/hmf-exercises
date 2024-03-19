@@ -21,17 +21,15 @@ import java.util.List;
  */
 public class MySqlBlogEntryDAOImpl implements BlogEntryDAO {
 
-    static Logger log = LogManager.getFormatterLogger(MySqlBlogEntryDAOImpl.class);
-
     private static final String DRIVER = "com.mysql.jdbc.Driver";
     private static final String USER = "admin";
     // private static final String PASS = ""; // XAMPP default
     private static final String PASS = "pass"; // MAMP default
     // private static final String URL = "jdbc:mysql://localhost/simpleblogdb"; // XAMPP
     private static final String URL = "jdbc:mysql://localhost:3306/my_db_name"; // MAMP
+    static Logger log = LogManager.getFormatterLogger(MySqlBlogEntryDAOImpl.class);
 
     // singleton pattern: exactly one instance of this class is accessible
-
     private static MySqlBlogEntryDAOImpl theInstance;
 
     private MySqlBlogEntryDAOImpl() {
@@ -198,7 +196,37 @@ public class MySqlBlogEntryDAOImpl implements BlogEntryDAO {
 
     @Override
     public void updateBlogEntry(BlogEntry blogEntry) {
-        log.error("Method updateBlogEntry is not implemented.");
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try {
+            conn = DriverManager.getConnection(URL, USER, PASS);
+            String sql = "update blogentries set contents=?, timestamp=? where id=?";
+            stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, blogEntry.getContents());
+            stmt.setTimestamp(2, new Timestamp(blogEntry.getTimestamp()
+                    .getTime()));
+            stmt.setInt(3, blogEntry.getId());
+            stmt.executeUpdate();
+
+
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+            }
+
+            try {
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+            }
+        }
     }
 
     @Override
