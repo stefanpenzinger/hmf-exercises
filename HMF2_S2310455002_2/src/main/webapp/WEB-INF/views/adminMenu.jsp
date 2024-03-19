@@ -46,6 +46,7 @@ table, td {border: 1px solid black}
 <p>
 <input type="hidden" name="cmd" value="">
 <input type="button" value="New" onClick="admin.cmd.value='add';admin.submit()">
+<input type="button" value="Update" onClick="admin.cmd.value='update';admin.submit()">
 <input type="button" value="Delete" onClick="admin.cmd.value='delete';admin.submit()">
 </form>
 <a href="..">Home</a>
