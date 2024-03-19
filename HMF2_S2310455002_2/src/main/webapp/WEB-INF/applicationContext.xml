@@ -7,6 +7,6 @@
  http://www.springframework.org/schema/context
  http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="blogEntryDAO" class="hmf2.simpleblog.dao.MemoryBlogEntryDAOImpl" />
+    <bean id="blogEntryDAO" class="hmf2.simpleblog.dao.MySqlBlogEntryDAOImpl" />
 
 </beans>
