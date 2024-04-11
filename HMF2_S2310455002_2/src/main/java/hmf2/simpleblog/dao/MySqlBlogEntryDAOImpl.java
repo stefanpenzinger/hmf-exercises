@@ -26,7 +26,7 @@ public class MySqlBlogEntryDAOImpl implements BlogEntryDAO {
     // private static final String PASS = ""; // XAMPP default
     private static final String PASS = "pass"; // MAMP default
     // private static final String URL = "jdbc:mysql://localhost/simpleblogdb"; // XAMPP
-    private static final String URL = "jdbc:mysql://localhost:3306/my_db_name"; // MAMP
+    private static final String URL = "jdbc:mysql://localhost:3306/simpleblog"; // MAMP
     static Logger log = LogManager.getFormatterLogger(MySqlBlogEntryDAOImpl.class);
 
     // singleton pattern: exactly one instance of this class is accessible
