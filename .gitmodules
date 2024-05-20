@@ -7,3 +7,6 @@
 [submodule "HMF2_S2310455002_5"]
 	path = HMF2_S2310455002_5
 	url = git@github.com:hmf2-ss2024/hmf2-assignment-5-stefanpenzinger.git
+[submodule "HMF2_S2310455002_7"]
+	path = HMF2_S2310455002_7
+	url = git@github.com:hmf2-ss2024/hmf2-assignment-7-stefanpenzinger.git
